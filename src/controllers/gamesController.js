@@ -2,7 +2,7 @@ import connection from "../database/database.js";
 
 export async function getGames(req,res) {
     const {name} = req.query
-    console.log(name)
+  
   try {
     if(name) {
       const queryGames= await connection.query(

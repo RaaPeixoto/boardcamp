@@ -5,4 +5,5 @@ const gamesRouters = Router();
 
 gamesRouters.get("/games",getGames);
 gamesRouters.post("/games",newGameMiddleware,postGame);
+
 export default gamesRouters;
