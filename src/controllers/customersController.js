@@ -1,12 +1,13 @@
 import connection from "../database/database.js";
 
+
 export async function getCustomers(req,res) {
   const{cpf} = req.query;
   const{id} = req.params;
     try {
       if(cpf){
         const customer = await connection.query(
-          `SELECT * FROM customers WHERE cpf = $1;`, [cpf]);
+          `SELECT * FROM customers WHERE cpf  LIKE $1;`, [cpf+"%"]);
           if(customer.rows.length===0){
             return res.sendStatus(404);
           }
@@ -19,7 +20,7 @@ export async function getCustomers(req,res) {
           if(customerId.rows.length===0){
             return res.sendStatus(404);
           }
-          return res.send(customerId.rows);
+          return res.send(customerId.rows[0]);
       }
       const customers = await connection.query(
         `SELECT * FROM customers;`);
@@ -32,6 +33,7 @@ export async function getCustomers(req,res) {
 
   export async function postCustomers(req,res){
     const { name, phone, cpf, birthday } = req.body;
+   
     try {
 
       await connection.query(
@@ -49,8 +51,7 @@ export async function getCustomers(req,res) {
   export async function updateCustomer(req,res){
     const{id} = req.params;
     const { name, phone, cpf, birthday } = req.body; 
-
-
+   
     try {
 
       await connection.query(

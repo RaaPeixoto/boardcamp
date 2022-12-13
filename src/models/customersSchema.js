@@ -1,16 +1,10 @@
-export default function customerSchema(req,res,next){
-    const { name, phone, cpf, birthday } = req.body;
-    if (
-      isNaN(cpf) ||
-      isNaN(phone) ||
-      cpf.toString().length !== 11 ||
-      birthday.toString().length > 11 ||
-      birthday.toString().length < 10 ||
-      !name ||
-      name.length < 1 ||
-      (birthday instanceof Date && !isNaN(data))
-    ) {
-      return res.sendStatus(400);
-    }
-    next();
-}
+import joi from "joi";
+
+const customerSchema = joi.object({
+  name: joi.string().required(),
+  phone: joi.string().min(10).max(11).required(),
+  cpf: joi.string().length(11).required(),
+  birthday: joi.date().required(),
+});
+
+export default customerSchema;

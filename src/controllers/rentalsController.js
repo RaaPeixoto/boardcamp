@@ -98,7 +98,14 @@ export async function postRental(req, res) {
       `INSERT INTO rentals ( "customerId","gameId","daysRented", "rentDate", "returnDate","originalPrice","delayFee") VALUES ($1,$2,$3,$4,$5,$6,$7)`,
       [customerId, gameId, daysRented, rentDate, null, originalPrice, null]
     );
-
+      await connection.query(
+        `
+        UPDATE games
+        SET "stockTotal" = "stockTotal" -1
+        WHERE id = $1
+      `,
+        [gameId]
+      );
     res.sendStatus(201);
   } catch (err) {
     console.log(err);
@@ -148,7 +155,7 @@ export async function postFinishRental(req,res){
     const { id } = req.params;
     try{
     let delayFee =0;
-    const newReturnDate= dayjs().format("YYYY-MM-DD");
+    
     const rental= await connection.query(`SELECT * FROM rentals WHERE id = $1`, [id]);
     const rentDate= rental.rows[0].rentDate;
     const daysRented= rental.rows[0].daysRented;
@@ -168,6 +175,15 @@ export async function postFinishRental(req,res){
       `,
         [dayjs().format("YYYY-MM-DD"),delayFee, id]
       );
+      
+      await connection.query(
+        `
+        UPDATE games
+        SET "stockTotal" = "stockTotal" +1
+        WHERE id = $1
+      `,
+        [rental.rows[0].gameId]
+      );
       res.sendStatus(200);
 
 }catch (err) {
@@ -179,12 +195,22 @@ export async function postFinishRental(req,res){
 
 export async function deleteRental(req,res){
     const { id } = req.params;
-
+    const rental = await connection.query(`SELECT * FROM rentals WHERE id = $1`, [id]);
     try {
         await connection.query(
 
             `DELETE FROM rentals WHERE id = $1`,[id]
         )
+        if(rental.rows[0].returnDate === null){
+          await connection.query(
+            `
+            UPDATE games
+            SET "stockTotal" = "stockTotal" +1
+            WHERE id = $1
+          `,
+            [rental.rows[0].gameId]
+          );
+      }
         res.sendStatus(200);
     }catch (err) {
     console.log(err);

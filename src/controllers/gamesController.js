@@ -6,15 +6,16 @@ export async function getGames(req,res) {
   try {
     if(name) {
       const queryGames= await connection.query(
-        `SELECT * FROM games WHERE lower(name) LIKE $1;`, [name.toLowerCase() + "%"] 
-    /*   `SELECT games.id, games.name, games.image, games."stockTotal", games."categoryId", games."pricePerDay", categories.name AS "categoryName" 
+        /* `SELECT * FROM games WHERE lower(name) LIKE $1;`, [name.toLowerCase() + "%"]  */
+      `SELECT games.id, games.name, games.image, games."stockTotal", games."categoryId", games."pricePerDay", categories.name AS "categoryName" 
       FROM 
         games
-        WHERE name LIKE $1
+      
       JOIN 
         categories
       ON 
-        games."categoryId" = categories.id;`,[name + "%"] */
+        games."categoryId" = categories.id 
+        WHERE  lower(games.name) LIKE $1;` ,[name.toLowerCase()+ "%"]
       
       ); 
       
